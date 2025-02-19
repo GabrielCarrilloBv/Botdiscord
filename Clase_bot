@@ -1,0 +1,173 @@
+import discord, random, requests
+from discord.ext import commands
+from settings import settings
+import os
+
+
+intents = discord.Intents.default()
+intents.message_content = True
+
+bot = commands.Bot(command_prefix='$', intents=intents)
+
+@bot.event
+async def on_ready():
+    print(f'We have logged in as {bot.user}')
+
+@bot.command()
+async def hello(ctx):
+    await ctx.send(f'Hola, soy un bot {bot.user}!')
+
+@bot.command()
+async def heh(ctx, count_heh = 5):
+    await ctx.send("he" * count_heh)
+
+@bot.command()
+async def suma(ctx, n1:int, n2:int):
+    await ctx.send(f"La suma de {n1} con {n2} es {n1 + n2}")
+
+@bot.command()
+async def repeat(ctx, times: int, content='repeating...'):
+    """Repeats a message multiple times."""
+    for i in range(times):
+        await ctx.send(content)
+
+
+
+@bot.group()
+async def cool(ctx):
+    """Says if a user is cool.
+
+    In reality this just checks if a subcommand is being invoked.
+    """
+    if ctx.invoked_subcommand is None:
+        await ctx.send(f'No, {ctx.subcommand_passed} is not cool')
+
+@bot.command()
+async def limpiar(ctx):
+    await ctx.channel.purge()
+    await ctx.send("Mensajes eliminados", delete_after = 3)
+
+@bot.command()
+async def mem(ctx):
+    with open('imagenes/meme1.jpeg', 'rb') as f:
+        # ¡Vamos a almacenar el archivo de la biblioteca Discord convertido en esta variable!
+        picture = discord.File(f)
+    # A continuación, podemos enviar este archivo como parámetro.
+    await ctx.send(file=picture)
+
+@bot.command()
+async def mem1(ctx):
+    with open('imagenes/megumi.webp', 'rb') as f:
+        # ¡Vamos a almacenar el archivo de la biblioteca Discord convertido en esta variable!
+        picture = discord.File(f)
+    # A continuación, podemos enviar este archivo como parámetro.
+    await ctx.send(file=picture)
+
+@bot.command()
+async def theone(ctx):
+    with open('imagenes/pen.jpg', 'rb') as f:
+        # ¡Vamos a almacenar el archivo de la biblioteca Discord convertido en esta variable!
+        picture = discord.File(f)
+    # A continuación, podemos enviar este archivo como parámetro.
+    await ctx.send(file=picture)
+
+
+@bot.command()
+async def memes(ctx):
+    imagenes = os.listdir('imagenes')
+    with open(f'imagenes/{random.choice(imagenes)}', 'rb') as f:
+            picture = discord.File(f)
+    # A continuación, podemos enviar este archivo como parámetro.
+    await ctx.send(file=picture)
+
+def get_duck_image_url():    
+    url = 'https://random-d.uk/api/random'
+    res = requests.get(url)
+    data = res.json()
+    return data['url']
+
+
+@bot.command('duck')
+async def duck(ctx):
+    '''Una vez que llamamos al comando duck, 
+    el programa llama a la función get_duck_image_url'''
+    image_url = get_duck_image_url()
+    await ctx.send(image_url)
+
+@bot.command()
+async def poke(ctx,arg):
+    try:
+        pokemon = arg.split(" ",1)[0].lower()
+        result = requests.get("https://pokeapi.co/api/v2/pokemon/"+pokemon)
+        if result.text == "Not Found":
+            await ctx.send("Pokemon no encontrado")
+        else:
+            image_url = result.json()["sprites"]["front_default"]
+            print(image_url)
+            await ctx.send(image_url)
+    except Exception as e:
+        print("Error:", e)
+@poke.error
+async def error_type(ctx,error):
+    if isinstance(error,commands.errors.MissingRequiredArgument):
+        await ctx.send("Tienes que darme un pokemon")
+
+@bot.command()
+async def gojo(ctx):
+    await ctx.send(f"""
+    Hola, soy un bot {bot.user}!
+    """)
+    #comentarios
+ 
+    await ctx.send("Quieres oir del más fuerte?")
+    # Esperar la respuesta del usuario
+    def check(message):
+        return message.author == ctx.author and message.channel == ctx.channel and message.content in ['si', 'no']
+    response = await bot.wait_for('message', check=check)
+    if response:
+        if response.content:
+            await ctx.send(""" 
+            Satoru Gojo el hechicero más fuerte de la actualidad poseedor de los 6 ojos y de la tecnica
+            ritual Maldición Ilimitada"
+            """)
+ 
+        else:
+            await ctx.send("Está bien, no me importa >:v")
+    else:
+        await ctx.send("Lo siento, no pude entender tu respuesta. Inténtalo de nuevo.")
+ 
+    await ctx.send("Quieres mas ejemplos sobre EL MÁS FUERTE'si' o 'no'.")
+    def check1(message):
+        return message.author == ctx.author and message.channel == ctx.channel and message.content in ['si', 'no']
+    response1 = await bot.wait_for('message', check=check1)
+    if response1:
+        if response1.content == "si":
+            await ctx.send("""
+            La tecnica Maldición Ilimitada permite a Gojo Satoru manipular el infinito existente
+            en el espacio , siendo capaz de manipular la materia y el espacio.
+            """) 
+        else:
+            await ctx.send("Está bien, no me importaaaa >:v")
+    else:
+        await ctx.send("Lo siento, no pude entender tu respuesta. Inténtalo de nuevo.")
+    await ctx.send("Te gustaria que te envie una foto sobre EL MÁS FUERTE?")
+    def check2(message):
+        return message.author == ctx.author and message.channel == ctx.channel and message.content in ['si', 'no']
+    response2 = await bot.wait_for('message', check=check2)
+    if response2:
+        if response1.content == "si":
+            image_path = 'contaminación/conta1.webp'
+ 
+        # Verificar si el archivo existe antes de enviarlo
+        if os.path.exists(image_path):
+            with open(image_path, 'rb') as f:
+                picture = discord.File(f)
+                await ctx.send("Aquí tienes un ejemplo del MÁS FUERTE:", file=picture)
+        else:
+            await ctx.send("Lo siento, no pude encontrar la imagen. Verifica que la ruta sea correcta.")
+    else:
+        await ctx.send("Lo siento, no pude entender tu respuesta. Inténtalo de nuevo.")
+
+
+
+bot.run(settings["TOKEN"])
